@@ -94,6 +94,7 @@ public class RecipeFragment extends Fragment {
         String json = gson.toJson(recipes);
         editor.putString("recipes", json);
         editor.apply();
+        editor.commit();
         Log.d("Racipe","Saved To Shared");
     }
 

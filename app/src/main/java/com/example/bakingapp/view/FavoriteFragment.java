@@ -32,7 +32,7 @@ public class FavoriteFragment extends Fragment implements SharedPreferences.OnSh
     private RecyclerView rvFavorite;
     private RecipeRecyclerViewAdapter recyclerViewAdapter;
     private List<Recipe> dataSet = new ArrayList<>();;
-    private int favID[] = {1,2};
+    private List<Integer> favID = new ArrayList<>();
     public static Context contextOfApplication;
     private SharedPreferences prefs;
 
@@ -67,6 +67,8 @@ public class FavoriteFragment extends Fragment implements SharedPreferences.OnSh
     @Override
     public void onPause() {
         prefs.unregisterOnSharedPreferenceChangeListener(this);
+        getFavorite();
+        recyclerViewAdapter.notifyDataSetChanged();
         super.onPause();
     }
 
@@ -74,6 +76,8 @@ public class FavoriteFragment extends Fragment implements SharedPreferences.OnSh
     public void onResume() {
         super.onResume();
         prefs.registerOnSharedPreferenceChangeListener(this);
+        getFavorite();
+        recyclerViewAdapter.notifyDataSetChanged();
     }
 
     private void getFavorite(){
@@ -81,11 +85,15 @@ public class FavoriteFragment extends Fragment implements SharedPreferences.OnSh
         prefs = getContext().getSharedPreferences("Shared Preferences", Context.MODE_PRIVATE);
         Gson gson = new Gson();
         String json = prefs.getString("recipes",null);
-        Type type = new TypeToken<List<Recipe>>() {}.getType();
+        String favIDJson = prefs.getString("favID",null);
 
+        Type type = new TypeToken<List<Recipe>>() {}.getType();
+        Type favType = new TypeToken<List<Integer>>() {}.getType();
+
+        favID = gson.fromJson(favIDJson, favType);
         tempData = gson.fromJson(json, type);
 
-        if (tempData != null){
+        if (tempData != null && favID != null){
             dataSet.clear();
             for (Recipe recipe : tempData){
                 for (int id : favID){
@@ -103,4 +111,6 @@ public class FavoriteFragment extends Fragment implements SharedPreferences.OnSh
         getFavorite();
         recyclerViewAdapter.notifyDataSetChanged();
     }
+
+
 }

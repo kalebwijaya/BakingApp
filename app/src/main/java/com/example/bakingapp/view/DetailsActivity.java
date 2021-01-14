@@ -21,6 +21,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -31,6 +32,8 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView tvServing;
     private RecyclerView rvDetails;
     private Button btnAddToFavorite;
+    private List<Integer> favID = new ArrayList<>();
+    private Boolean isFav = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +58,20 @@ public class DetailsActivity extends AppCompatActivity {
             rvDetails.setAdapter(recyclerViewAdapter);
         }
 
+        checkFav();
+        if (isFav){
+            btnAddToFavorite.setText("Remove Favorite");
+        }
+
         btnAddToFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isFav){
 
+                }else{
+                    favID.add(recipeID);
+                    saveFav(favID);
+                }
             }
         });
 
@@ -68,10 +81,16 @@ public class DetailsActivity extends AppCompatActivity {
         List<Recipe> tempData = new ArrayList<>();
         SharedPreferences sharedPreferences = this.getSharedPreferences("Shared Preferences", Context.MODE_PRIVATE);
         Gson gson = new Gson();
-        String json = sharedPreferences.getString("recipes",null);
-        Type type = new TypeToken<List<Recipe>>() {}.getType();
+        String recipeJson = sharedPreferences.getString("recipes",null);
+        String favIDJson = sharedPreferences.getString("favID",null);
 
-        tempData = gson.fromJson(json, type);
+        Type recipeType = new TypeToken<List<Recipe>>() {}.getType();
+        Type favType = new TypeToken<List<Integer>>() {}.getType();
+
+        tempData = gson.fromJson(recipeJson, recipeType);
+        favID = gson.fromJson(favIDJson, favType);
+        if(favID == null)
+            favID = new ArrayList<>();
 
         if (!tempData.isEmpty()){
             for (Recipe recipe : tempData){
@@ -82,4 +101,23 @@ public class DetailsActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void saveFav(List<Integer> favID){
+        SharedPreferences sharedPreferences = this.getSharedPreferences("Shared Preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(favID);
+        editor.putString("favID", json);
+        editor.apply();
+        editor.commit();
+        Log.d("Fav ID","Saved To Shared");
+    }
+
+    private void checkFav(){
+        for (int id : favID){
+            if(id == recipeID)
+                isFav = true;
+        }
+    }
+
 }
