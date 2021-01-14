@@ -67,10 +67,13 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (isFav){
-
+                    removeFav();
+                    saveFav(favID);
+                    btnAddToFavorite.setText("Add Favorite");
                 }else{
                     favID.add(recipeID);
                     saveFav(favID);
+                    btnAddToFavorite.setText("Remove Favorite");
                 }
             }
         });
@@ -115,8 +118,21 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void checkFav(){
         for (int id : favID){
-            if(id == recipeID)
+            if(id == recipeID) {
                 isFav = true;
+                return;
+            }
+        }
+    }
+
+    private void removeFav(){
+        for (int i = 0; i < favID.size(); i++){
+            if(favID.get(i) == recipeID){
+                favID.remove(i);
+                isFav = false;
+                return;
+            }
+
         }
     }
 
